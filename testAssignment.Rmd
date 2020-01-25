@@ -1,6 +1,6 @@
 ---
 title: "Test statistical assignment"
-author: "Alexey Bessudnov"
+author: "Daniel Orchard"
 date: "22 January 2020"
 output: github_document
 ---
@@ -15,17 +15,14 @@ Please change the author and date fields above as appropriate. Do not change the
 
 ## Reading data (40 points)
 
-First, we need to read the data into R. For this assignment, I ask you to use data from the youth self-completion questionnaire (completed by children between 10 and 15 years old) from Wave 9 of the Understanding Society. It is one of the files you have downloaded as part of SN6614 from the UK Data Service. To help you find and understand this file you will need the following documents:
-
-1) The Understanding Society Waves 1-9 User Guide: https://www.understandingsociety.ac.uk/sites/default/files/downloads/documentation/mainstage/user-guides/mainstage-user-guide.pdf
-2) The youth self-completion questionnaire from Wave 9: https://www.understandingsociety.ac.uk/sites/default/files/downloads/documentation/mainstage/questionnaire/wave-9/w9-gb-youth-self-completion-questionnaire.pdf
-3) The codebook for the file: https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/datafile/youth/wave/9
-
 
 ```{r}
-library(tidyverse)
+
+suppressMessages(library(dplyr))
+suppressMessages(library(readr))
+suppressMessages(library(tidyverse))
 # This attaches the tidyverse package. If you get an error here you need to install the package first. 
-Data <- read_tsv("")
+data <- read_tsv("C:/Users/dan19/Documents/MY DOCUMENTS/Year 2 Term 2 Modules/Data III/Understanding Society Data/UKDA-6614-tab/tab/ukhls_w9/i_youth.tab")
 # You need to add between the quotation marks a full path to the required file on your computer.
 ```
 
@@ -36,7 +33,11 @@ In the survey children were asked the following question: "Do you have a social 
 Tabulate three variables: children's gender, age (please use derived variables) and having an account on social media.
 
 ```{r}
-# add your code here
+table(data$i_ypsocweb)
+
+table(data$i_age_dv)
+
+table(data$i_sex_dv)
 
 ```
 
@@ -45,7 +46,19 @@ Tabulate three variables: children's gender, age (please use derived variables) 
 We want to create a new binary variable for having an account on social media so that 1 means "yes", 0 means "no", and all missing values are coded as NA. We also want to recode gender into a new variable with the values "male" and "female" (this can be a character vector or a factor).
 
 ```{r}
-# add your code here
+
+
+data$socialmedia <- NA
+
+data$socialmedia[data$i_ypsocweb == "1"] <- 1
+data$socialmedia[data$i_ypsocweb == "2"] <- 0
+
+table(data$i_ypsocweb)
+table(data$socialmedia)
+
+mean(data$socialmedia, na.rm = TRUE)
+
+
 ```
 
 ## Calculate means (10 points)
@@ -53,20 +66,44 @@ We want to create a new binary variable for having an account on social media so
 Produce code that calculates probabilities of having an account on social media (i.e. the mean of your new binary variable produced in the previous problem) by age and gender. 
 
 ```{r}
-# add your code here
+
+tapply(data$socialmedia, data$i_sex_dv, mean, na.rm = TRUE)
+# 1 is male, 2 is female, 0 is inconsistent
+
+tapply(data$socialmedia, data$i_age_dv, mean, na.rm = TRUE)
+
+plotdata <- tapply(data$socialmedia, data$i_age_dv, mean, na.rm = TRUE)
+## seems to show that 0 percent of 9 years olds have a social media account and 100% of 16 year olds do. This seems quite unlikely. Other than that the probability of having a social media account rises dramatically from 10 to 12 and then stays in the 90% region.
+
 ```
 
 ## Write short interpretation (10 points)
 
-Write two or three sentences interpreting your findings above.
+This data seems to show that 0 percent of 9 years olds have a social media account and 100% of 16 year olds do. This seems quite unlikely. Other than that the probability of having a social media account rises dramatically from 10 to 12 and then plateaus in the 90% region.
 
 ## Visualise results (20 points)
 
 Create a statistical graph (only one, but it can be faceted) illustrating your results (i.e. showing how the probability of having an account on social media changes with age and gender). Which type of statistical graph would be most appropriate for this?
 
 ```{r}
-# add your code here
+# 
+library(ggplot2)
+
+labels <- c(8:16)
+
+plot(plotdata, xlab = "Years -  Couldn't figure out how to make it 8-16", 
+               ylab = "Probability of Social Media Ownership",
+               pch = 5,
+               main = "Probability of 8-16 yr old having Social Media",
+               xaxt="n"               )
+
+
+
 ```
+ 
+ 
+#axis(1, at= c(1:8),labels= c(8:16), col.axis="red", las=2
+#wanted to use this to make new ticks on the x axis. wouldnt work :(
 
 ## Conclusion
 
